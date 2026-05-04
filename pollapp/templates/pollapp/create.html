@@ -1,0 +1,60 @@
+{% extends 'pollapp/base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+
+                <h3 class="mb-3">Create Poll</h3>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Question -->
+                    <div class="mb-3">
+                        <label class="form-label">Question</label>
+                        <input type="text" name="question" class="form-control" placeholder="Enter your question">
+                    </div>
+
+                    <!-- Choices -->
+                    <label class="form-label">Choices</label>
+
+                    <div id="choices-box">
+                        <input type="text" name="choices" class="form-control mb-2" placeholder="Choice 1">
+                        <input type="text" name="choices" class="form-control mb-2" placeholder="Choice 2">
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addChoice()">
+                        + Add Choice
+                    </button>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        Create Poll
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function addChoice() {
+    const box = document.getElementById("choices-box");
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = "choices";
+    input.className = "form-control mb-2";
+    input.placeholder = "New choice";
+
+    box.appendChild(input);
+}
+</script>
+
+{% endblock %}
