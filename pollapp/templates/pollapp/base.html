@@ -29,7 +29,7 @@
 </head>
 
 <body>
-
+    
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
 
@@ -96,6 +96,15 @@
         </div>
     </div>
 </nav>
+
+{% if messages %}
+    {% for message in messages %}
+        <div style="padding:10px; margin:10px; border:1px solid #ccc;
+                    background-color:#e7a0a0;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 
 <div class="container mt-4">
     {% block content %}

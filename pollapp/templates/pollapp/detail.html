@@ -2,21 +2,33 @@
 
 {% block content %}
 
-    <h1>{{ question.question_text }}</h1>
+<h1>{{ question.question_text }}</h1>
 
-    {% if error_message %}
-    <p style="color:red">{{ error_message }}</p>
-    {% endif %}
+<p><strong>Created by:</strong> {{ question.user.username }}</p>
 
-    <form action="{% url 'pollapp:vote' question.id %}" method="post">
-        {% csrf_token %}
+{% if user == question.user or user.is_superuser %}
+    <a href="{% url 'pollapp:edit_question' question.id %}">
+        ✏️ Edit Poll
+    </a>
+{% endif %}
 
-        {% for choice in question.choice_set.all %}
+
+<hr>
+
+<!-- 🗳️ Voting (everyone can see) -->
+<form action="{% url 'pollapp:vote' question.id %}" method="post">
+    {% csrf_token %}
+
+    {% for choice in question.choice_set.all %}
+        <div>
             <input type="radio" name="choice" value="{{ choice.id }}">
-            {{ choice.choice_text }}<br>
-        {% endfor %}
+            {{ choice.choice_text }}
+        </div>
+    {% endfor %}
 
-        <button type="submit">Vote</button>
-    </form>
+    <button type="submit">Vote</button>
+</form>
+
+
 
 {% endblock %}

@@ -12,4 +12,12 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
 
+    path('<int:question_id>/edit/', views.edit_question, name='edit_question'),
+    path('<int:question_id>/delete/', views.delete_question, name='delete_question'),
+
+    path('choice/<int:choice_id>/edit/', views.edit_choice, name='edit_choice'),
+    path('choice/<int:choice_id>/delete/', views.delete_choice, name='delete_choice'),
+    
+    path('<int:question_id>/add-choice/', views.add_choice, name='add_choice'),
+
 ]
