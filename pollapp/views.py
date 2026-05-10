@@ -7,6 +7,19 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import permission_classes
+from .serializers import (
+    QuestionSerializer,
+    QuestionCreateSerializer
+)
+
+from .serializers import RegisterSerializer
+
 def index(request):
     questions = Question.objects.all()
     return render(request, 'pollapp/index.html', {'questions': questions})
@@ -171,3 +184,75 @@ def add_choice(request, question_id):
             return redirect('pollapp:detail', question_id=question.id)
 
     return render(request, 'pollapp/add_choice.html', {'question': question})
+
+@api_view(['GET'])
+def api_questions(request):
+    questions = Question.objects.all()
+    serializer = QuestionSerializer(questions, many=True)
+
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def api_question_detail(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    serializer = QuestionSerializer(question)
+
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_create_question(request):
+    serializer = QuestionCreateSerializer(
+        data=request.data,
+        context={'request': request}
+    )
+
+    if serializer.is_valid():
+        question = serializer.save()
+
+        return Response(
+            QuestionSerializer(question).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def api_vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+
+    choice_id = request.data.get('choice')
+
+    try:
+        selected_choice = question.choice_set.get(pk=choice_id)
+
+    except Choice.DoesNotExist:
+        return Response(
+            {'error': 'Invalid choice'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    selected_choice.votes += 1
+    selected_choice.save()
+
+    return Response({
+        'message': 'Vote successful',
+        'choice': selected_choice.choice_text,
+        'votes': selected_choice.votes
+    })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_register(request):
+    serializer = RegisterSerializer(data=request.data)
+
+    if serializer.is_valid():
+        user = serializer.save()
+
+        return Response({
+            'message': 'User created successfully',
+            'username': user.username
+        }, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
